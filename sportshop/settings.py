@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'shop',
+    'shop.templatetags.cart_extras',
 ]
 
 MIDDLEWARE = [
@@ -56,7 +57,7 @@ ROOT_URLCONF = 'sportshop.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],  # Добавляем эту строку
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -64,9 +65,15 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'shop.context_processors.categories',  # Добавим позже
             ],
         },
     },
+]
+
+# Добавляем в конец файла
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static'),
 ]
 
 WSGI_APPLICATION = 'sportshop.wsgi.application'
@@ -128,3 +135,11 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 AUTH_USER_MODEL = 'shop.User'
+
+
+
+# Добавляем настройки аутентификации
+LOGIN_URL = '/login/'
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
