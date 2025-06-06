@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils.text import slugify
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.db.models import Sum, F, Count, Avg
 
 class User(AbstractUser):
     phone = models.CharField(max_length=20, blank=True, verbose_name='Телефон')
@@ -44,6 +45,15 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/', verbose_name='Изображение')
     created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
     is_active = models.BooleanField(default=True, verbose_name='Активен')
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0,
+                                 verbose_name='Скидка (%)')
+
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        verbose_name='Автор'
+    )
 
     class Meta:
         verbose_name = 'Товар'
@@ -52,6 +62,11 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.price} руб.)"
+
+    @property
+    def discounted_price(self):
+        return self.price * (1 - self.discount / 100)
+
 
 class Order(models.Model):
     STATUS_CHOICES = [
@@ -125,20 +140,65 @@ class Review(models.Model):
         return f"Отзыв от {self.user.username} на {self.product.name} ({self.rating} звезд)"
 
 class Cart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='cart_items',
-                            verbose_name='Пользователь')
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, verbose_name='Товар')
-    quantity = models.PositiveIntegerField(default=1, verbose_name='Количество')
-    added_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата добавления')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='cart_items',
+        verbose_name='Пользователь'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        verbose_name='Товар'
+    )
+    quantity = models.PositiveIntegerField(
+        default=1,
+        verbose_name='Количество'
+    )
+    added_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата добавления'
+    )
 
     class Meta:
         verbose_name = 'Корзина'
         verbose_name_plural = 'Корзины'
         unique_together = ['user', 'product']
+        ordering = ['-added_at']
 
     def __str__(self):
         return f"{self.product.name} в корзине {self.user.username}"
 
     @property
     def total_price(self):
-        return self.quantity * self.product.price
+        if self.product.discount:
+            return self.product.discounted_price * self.quantity
+        return self.product.price * self.quantity
+
+class Favorite(models.Model):
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Пользователь'
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name='favorites',
+        verbose_name='Товар'
+    )
+    added_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата добавления'
+    )
+
+    class Meta:
+        verbose_name = 'Избранное'
+        verbose_name_plural = 'Избранные товары'
+        unique_together = ['user', 'product']
+        ordering = ['-added_at']
+
+    def __str__(self):
+        return f"{self.product.name} в избранном у {self.user.username}"
+
