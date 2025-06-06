@@ -1,0 +1,77 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}Избранное{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Избранное</h1>
+    <div>
+        <a href="{% url 'home' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left"></i> Вернуться в магазин
+        </a>
+    </div>
+</div>
+
+{% if favorite_products %}
+<div class="row">
+    {% for product in favorite_products %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 product-card">
+            {% if product.discount %}
+            <span class="discount-badge">-{{ product.discount }}%</span>
+            {% endif %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">{{ product.name }}</a>
+                </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if product.discount %}
+                        <span class="old-price">{{ product.price }} руб.</span>
+                        <span class="new-price">{{ product.discounted_price }} руб.</span>
+                        {% else %}
+                        <span>{{ product.price }} руб.</span>
+                        {% endif %}
+                    </div>
+                    <button class="btn btn-sm btn-outline-danger remove-from-favorites" data-product-id="{{ product.id }}">
+                        <i class="bi bi-heart-fill"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+    В вашем списке избранного пока нет товаров.
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Обработка удаления из избранного
+    document.querySelectorAll('.remove-from-favorites').forEach(button => {
+        button.addEventListener('click', function() {
+            const productId = this.dataset.productId;
+            fetch(`/favorites/remove/${productId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if(data.success) {
+                    location.reload(); // Перезагружаем страницу после удаления
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}

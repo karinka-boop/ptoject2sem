@@ -1,0 +1,51 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{{ category.name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>{{ category.name }}</h1>
+    <div class="dropdown">
+        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="sortDropdown" data-bs-toggle="dropdown">
+            Сортировка
+        </button>
+        <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="?sort=price">По возрастанию цены</a></li>
+            <li><a class="dropdown-item" href="?sort=-price">По убыванию цены</a></li>
+            <li><a class="dropdown-item" href="?sort=-created_at">Новинки</a></li>
+            <li><a class="dropdown-item" href="?sort=-discount">По размеру скидки</a></li>
+        </ul>
+    </div>
+</div>
+
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-3 mb-4">
+        <div class="card h-100 product-card">
+            {% if product.discount %}
+            <span class="discount-badge">-{{ product.discount }}%</span>
+            {% endif %}
+            <img src="{{ product.image.url }}" class="card-img-top" alt="{{ product.name }}">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">{{ product.name }}</a>
+                </h5>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        {% if product.discount %}
+                        <span class="old-price">{{ product.price }} руб.</span>
+                        <span class="new-price">{{ product.discounted_price }} руб.</span>
+                        {% else %}
+                        <span>{{ product.price }} руб.</span>
+                        {% endif %}
+                    </div>
+                    <button class="btn btn-sm btn-outline-primary add-to-cart" data-product-id="{{ product.id }}">
+                        <i class="bi bi-cart-plus"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

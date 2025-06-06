@@ -1,0 +1,220 @@
+{% extends 'shop/base.html' %}
+
+{% block title %}{% if search_query %}Поиск: {{ search_query }}{% else %}Главная страница{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container">
+    {% if search_query %}
+        <!-- Режим поиска -->
+        <h2 class="mb-4">Результаты поиска для "{{ search_query }}"</h2>
+
+        {% if products %}
+        <div class="row">
+            {% for product in products %}
+            <div class="col-md-3 mb-4">
+                <div class="card h-100 product-card">
+                    {% if product.discount %}
+                    <span class="discount-badge">-{{ product.discount }}%</span>
+                    {% endif %}
+                    <img src="{{ product.image.url }}" class="card-img-top p-2" alt="{{ product.name }}" style="height: 200px; object-fit: contain;">
+                    <div class="card-body">
+                        <h5 class="card-title">
+                            <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">{{ product.name }}</a>
+                        </h5>
+                        <p class="card-text text-muted small">{{ product.category.name }}</p>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                {% if product.discount %}
+                                <span class="old-price">{{ product.price }} руб.</span>
+                                <span class="new-price">{{ product.discounted_price }} руб.</span>
+                                {% else %}
+                                <span class="fw-bold">{{ product.price }} руб.</span>
+                                {% endif %}
+                            </div>
+                            <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-outline-primary">
+                                Подробнее
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="alert alert-info">
+            По вашему запросу "{{ search_query }}" ничего не найдено.
+        </div>
+        {% endif %}
+
+    {% else %}
+        <!-- Обычный режим (без поиска) -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div id="mainCarousel" class="carousel slide" data-bs-ride="carousel">
+                    <div class="carousel-inner rounded">
+                        <div class="carousel-item active">
+                            <img src="https://via.placeholder.com/1200x400?text=SportShop" class="d-block w-100" alt="Акция">
+                        </div>
+                        <div class="carousel-item">
+                            <img src="https://via.placeholder.com/1200x400?text=Скидки+до+50%" class="d-block w-100" alt="Скидки">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Популярные товары -->
+        <div class="card mb-4">
+            <div class="card-header bg-primary text-white">
+                <h2 class="h5 mb-0">Популярные товары</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for product in popular_products %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 product-card">
+                            {% if product.discount %}
+                            <span class="discount-badge">-{{ product.discount }}%</span>
+                            {% endif %}
+                            <img src="{{ product.image.url }}" class="card-img-top p-2" alt="{{ product.name }}" style="height: 150px; object-fit: contain;">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">{{ product.name|truncatechars:30 }}</a>
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if product.discount %}
+                                        <span class="old-price">{{ product.price }} руб.</span>
+                                        <span class="new-price">{{ product.discounted_price }} руб.</span>
+                                        {% else %}
+                                        <span class="fw-bold">{{ product.price }} руб.</span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-outline-primary">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-end mt-3">
+                    <a href="#" class="btn btn-outline-primary">Все популярные товары →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Новинки -->
+        <div class="card mb-4">
+            <div class="card-header bg-success text-white">
+                <h2 class="h5 mb-0">Новинки</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for product in new_products %}
+                    <div class="col-md-3 mb-3">
+                        <div class="card h-100 product-card">
+                            {% if product.discount %}
+                            <span class="discount-badge">-{{ product.discount }}%</span>
+                            {% endif %}
+                            <img src="{{ product.image.url }}" class="card-img-top p-2" alt="{{ product.name }}" style="height: 150px; object-fit: contain;">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">{{ product.name|truncatechars:30 }}</a>
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        {% if product.discount %}
+                                        <span class="old-price">{{ product.price }} руб.</span>
+                                        <span class="new-price">{{ product.discounted_price }} руб.</span>
+                                        {% else %}
+                                        <span class="fw-bold">{{ product.price }} руб.</span>
+                                        {% endif %}
+                                    </div>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-outline-success">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <div class="text-end mt-3">
+                    <a href="#" class="btn btn-outline-success">Все новинки →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Специальные предложения -->
+        <div class="card mb-4">
+            <div class="card-header bg-danger text-white">
+                <h2 class="h5 mb-0">Специальные предложения</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for product in discounted_products %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100 product-card">
+                            <span class="discount-badge">-{{ product.discount }}%</span>
+                            <img src="{{ product.image.url }}" class="card-img-top p-2" alt="{{ product.name }}" style="height: 200px; object-fit: contain;">
+                            <div class="card-body">
+                                <h5 class="card-title">
+                                    <a href="{% url 'product_detail' product.id %}" class="text-decoration-none">{{ product.name }}</a>
+                                </h5>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <span class="old-price">{{ product.price }} руб.</span>
+                                        <span class="new-price">{{ product.discounted_price }} руб.</span>
+                                    </div>
+                                    <a href="{% url 'product_detail' product.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-cart-plus"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Отзывы покупателей -->
+        <div class="card mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h2 class="h5 mb-0">Отзывы покупателей</h2>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for review in recent_reviews %}
+                    <div class="col-md-4 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between mb-3">
+                                    <h5 class="card-title mb-0">{{ review.product.name|truncatechars:20 }}</h5>
+                                    <div class="text-warning">
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= review.rating %}
+                                                <i class="bi bi-star-fill"></i>
+                                            {% else %}
+                                                <i class="bi bi-star"></i>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                                <p class="card-text">{{ review.text|truncatechars:100 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ review.user.username }}</small>
+                                    <small class="text-muted">{{ review.created_at|date:"d.m.Y" }}</small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
