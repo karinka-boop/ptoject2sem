@@ -15,10 +15,26 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-
 from django.conf import settings
 from django.conf.urls.static import static
+from shop import views
+from shop.views import ProductAddView, ProductEditView, ProductDeleteView
+
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('', views.home, name='home'),
+    path('product/<int:pk>/', views.product_detail, name='product_detail'),
+    path('category/<slug:slug>/', views.category_products, name='category_products'),
+    path('favorites/', views.favorites, name='favorites'),
+    path('favorites/add/<int:product_id>/', views.add_to_favorites, name='add_to_favorites'),
+    path('favorites/remove/<int:product_id>/', views.remove_from_favorites, name='remove_from_favorites'),
+    path('cart/', views.cart_view, name='cart_view'),
+    path('cart/add/<int:product_id>/', views.add_to_cart, name='add_to_cart'),
+    path('cart/remove/<int:cart_item_id>/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/update/<int:cart_item_id>/', views.update_cart_item, name='update_cart_item'),
+    path('cart/get_count/', views.get_cart_count, name='get_cart_count'),
+    path('product/add/', ProductAddView.as_view(), name='product_add'),
+    path('product/edit/<int:pk>/', ProductEditView.as_view(), name='product_edit'),
+    path('product/delete/<int:pk>/', ProductDeleteView.as_view(), name='product_delete'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
