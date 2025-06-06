@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.html import format_html
-from .models import User, Category, Product, Order, OrderItem, Review, Cart
+from .models import User, Category, Product, Order, OrderItem, Review, Cart, Favorite  # Добавляем Favorite в импорт
 
 
 class OrderItemInline(admin.TabularInline):
@@ -137,3 +137,13 @@ class CartAdmin(admin.ModelAdmin):
     @admin.display(description='Общая стоимость')
     def total_price(self, obj):
         return obj.quantity * obj.product.price
+
+
+@admin.register(Favorite)
+class FavoriteAdmin(admin.ModelAdmin):
+    list_display = ['user', 'product', 'added_at']
+    list_filter = ['added_at']
+    search_fields = ['user__username', 'product__name']
+    raw_id_fields = ['user', 'product']
+    readonly_fields = ['added_at']
+    date_hierarchy = 'added_at'
